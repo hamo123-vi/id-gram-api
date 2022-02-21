@@ -17,13 +17,13 @@ exports.follow = asyncHandler( async(req, res, next) => {
         return next(new ErrorResponse('Forbidden', 403));
     }
         console.log(req.params.id);
-        console.log(user._id)
+        console.log(req.user.id)
     if(user.followers.includes(follower)) {
         user.followers.pull(follower);
         await user.save();
         res.status(200).json({success: true, message: 'Unfollowed'})
     } else {
-        user.followers.push(comment)
+        user.followers.push(follower)
         await user.save();
         res.status(200).json(follower)
     }
