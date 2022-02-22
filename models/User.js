@@ -31,9 +31,11 @@ const UserSchema = new mongoose.Schema({
         select: false
     },
 
-    followers: [{
-        type: mongoose.Schema.ObjectId, ref: 'User' 
-    }]
+    followers: {
+        type: [{user:{
+            type: mongoose.Schema.Types.ObjectId
+        }}]
+    }
 
 })
 

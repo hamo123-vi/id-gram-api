@@ -16,15 +16,16 @@ exports.follow = asyncHandler( async(req, res, next) => {
     if(user._id == req.user.id) {
         return next(new ErrorResponse('Forbidden', 403));
     }
-        console.log(req.params.id);
-        console.log(req.user.id)
-    if(user.followers.includes(follower)) {
-        user.followers.pull(follower);
-        await user.save();
-        res.status(200).json({success: true, message: 'Unfollowed'})
-    } else {
-        user.followers.push(follower)
-        await user.save();
-        res.status(200).json(follower)
+        const followerExists = await User.find({ $and : [{ followers : { $elemMatch: { user: {$eq: Object(req.user.id) } } } }, {_id: req.params.id}]});
+
+        if(followerExists.length>0) {
+            await user.updateOne({ $pull: { followers: follower} });
+            await user.save();
+            res.status(200).json({success: true, message: "Unfollowed"})
+        }else {
+            await user.updateOne({ $push: { followers: follower} });
+            await user.save();
+            res.status(200).json({success: true, message: "Following"})
     }
+
 });
