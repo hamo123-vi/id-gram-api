@@ -4,8 +4,8 @@ const Post = require('../models/Post')
 const asyncHandler = require('../middleware/async')
 const ErrorResponse = require('../utils/errorResponse')
 
-// @desc     Submit form
-// @route    POST/api/form
+// @desc     Upload post
+// @route    POST/api/v1/posts/upload
 // @acces    Public
 exports.uploadPost = asyncHandler( async (req, res, next) => {
     
@@ -31,8 +31,8 @@ exports.uploadPost = asyncHandler( async (req, res, next) => {
 
 });
 
-// @desc     Follow user
-// @route    PUT/api/v1/follow
+// @desc     Like post
+// @route    PUT/api/v1/posts/like/:id
 // @acces    Public
 exports.like= asyncHandler( async(req, res, next) => {
 
@@ -57,8 +57,8 @@ exports.like= asyncHandler( async(req, res, next) => {
 
 });
 
-// @desc     Follow user
-// @route    PUT/api/v1/follow
+// @desc     Comment post
+// @route    PUT/api/v1/posts/comment/:id
 // @acces    Public
 exports.comment= asyncHandler( async(req, res, next) => {
 
