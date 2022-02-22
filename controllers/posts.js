@@ -4,9 +4,39 @@ const Post = require('../models/Post')
 const asyncHandler = require('../middleware/async')
 const ErrorResponse = require('../utils/errorResponse')
 
+// @desc     Get my posts
+// @route    POST/api/v1/posts/my
+// @acces    Private
+exports.myPosts = asyncHandler( async (req, res, next) => {
+    
+    const posts = await Post.find({user: Object(req.user.id)});
+
+    if (!posts) {
+      return next(new ErrorResponse("Can not fetch single post", 400))
+    }
+
+    res.status(200).json({message: 'Success', posts: posts})
+
+});
+
+// @desc     Get explore posts
+// @route    POST/api/v1/posts/explore
+// @acces    Private
+exports.explorePosts = asyncHandler( async (req, res, next) => {
+    
+    const posts = await Post.find({user: { $ne: Object(req.user.id) } } );
+
+    if (!posts) {
+      return next(new ErrorResponse("Can not fetch all posts to explore", 400))
+    }
+
+    res.status(200).json({message: 'Success', posts: posts})
+
+});
+
 // @desc     Upload post
 // @route    POST/api/v1/posts/upload
-// @acces    Public
+// @acces    Private
 exports.uploadPost = asyncHandler( async (req, res, next) => {
     
     const file = req.files.image;
@@ -22,7 +52,8 @@ exports.uploadPost = asyncHandler( async (req, res, next) => {
             } else {
                 await Post.create({
                 image: file.name,
-                description: req.body.description
+                description: req.body.description,
+                user: req.user.id
             })
   }
   })
