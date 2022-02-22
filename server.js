@@ -12,6 +12,7 @@ dotenv.config({ path : './config/config.env'})
 //Load routes
 const auth = require('./routes/auth');
 const users = require('./routes/users');
+const posts = require('./routes/posts');
 
 //Initializing app
 const app = express()
@@ -34,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')))
 //Mount routers
 app.use('/api/v1/auth', auth);
 app.use('/api/v1/users', users);
+app.use('/api/v1/posts', posts);
 
 //Error handler
 app.use(errorHandler)
