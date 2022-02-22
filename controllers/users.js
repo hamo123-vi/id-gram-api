@@ -1,7 +1,27 @@
 const asyncHandler = require('../middleware/async');
 const User = require('../models/User');
-const advancedResults = require('../middleware/advancedResults');
 const ErrorResponse = require('../utils/errorResponse');
+
+// @desc     Get users
+// @route    GET/api/v1/users
+// @acces    Public
+exports.getUsers = asyncHandler( async(req, res, next) => {
+    res.status(200).json(res.advancedResults)
+})
+
+// @desc     Get user by id
+// @route    GET/api/v1/users
+// @acces    Public
+exports.getUser = asyncHandler( async(req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if(!user) {
+        return next(new ErrorResponse('User does not exist in database', 404));
+    }
+
+    res.status(200).json({success: true, user});
+    
+})
 
 // @desc     Follow user
 // @route    PUT/api/v1/users/follow

@@ -32,9 +32,21 @@ const UserSchema = new mongoose.Schema({
     },
 
     followers: {
-        type: [{user:{
-            type: mongoose.Schema.Types.ObjectId
-        }}]
+        type: [
+                {user: {
+                    type: mongoose.Schema.Types.ObjectId
+                }
+            } ]
+    },
+
+    image: {
+        type: String,
+        default: 'Emoji.png'
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now()
     }
 
 })

@@ -55,23 +55,39 @@ exports.getMe = asyncHandler( async (req, res, next) => {
     })
 });
 
-//desc    Update User Details
+//desc       Update User Details
 //route      PUT /api/v1/auth/updatedetails
 //access     Private
 exports.updateDetails = asyncHandler(async(req, res, next) => {
-    const fieldsToUpdate = { 
-        name: req.body.name,
-        email: req.body.email
+
+    const file = req.files.image;
+
+    if (!file) {
+      return next(new ErrorResponse("Please upload image", 400))
     }
 
-    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-        runValidators: true,
-        new: true
-    });
+    file.mv(`${process.env.PROFILE_PICTURE_UPLOAD_PATH}/${file.name}`, async err => {
+        if(err) {
+            return next(
+                new ErrorResponse('Problem with image upload', 500)
+            )
+        } else {
+            const fieldsToUpdate = { 
+            fullname: req.body.fullname,
+            username: req.body.username,
+            email: req.body.email,
+            image: file.name
+            }
 
-    res.status(200).json({success: true, data: user});
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate); 
+
+        res.status(200).json({success: true, data: fieldsToUpdate});
+        }
+    });
 });
 
+
+//Token generating
 const sendTokenResponse = (user, statusCode, res) => {
 
     //Create token
