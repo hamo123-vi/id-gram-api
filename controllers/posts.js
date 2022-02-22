@@ -20,7 +20,7 @@ exports.myPosts = asyncHandler( async (req, res, next) => {
 });
 
 // @desc     Get explore posts
-// @route    POST/api/v1/posts/explore
+// @route    GET/api/v1/posts/explore
 // @acces    Private
 exports.explorePosts = asyncHandler( async (req, res, next) => {
     
@@ -33,6 +33,39 @@ exports.explorePosts = asyncHandler( async (req, res, next) => {
     res.status(200).json({message: 'Success', posts: posts})
 
 });
+
+// @desc     Get following posts
+// @route    GET/api/v1/posts/following
+// @acces    Private
+exports.followingPosts = asyncHandler( async (req, res, next) => {
+    
+    const posts = await Post.aggregate([
+        { $lookup:
+            {
+            from: "users",
+            let: { followers: "$followers"},
+            pipeline: [
+                    { $match:
+                            {
+                                followers : {$elemMatch: { user: {$eq: Object(req.user.id) } } }
+                            }
+                        }
+                    
+                ],
+                as: "posts"
+                }
+        }
+])
+
+    if (!posts) {
+      return next(new ErrorResponse("Can not fetch all posts to explore", 400))
+    }
+
+    res.status(200).json({message: 'Success', posts: posts})
+
+});
+
+/**/ 
 
 // @desc     Get user's posts
 // @route    POST/api/v1/posts/user/:id
