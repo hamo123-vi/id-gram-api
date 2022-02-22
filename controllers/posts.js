@@ -34,6 +34,21 @@ exports.explorePosts = asyncHandler( async (req, res, next) => {
 
 });
 
+// @desc     Get user's posts
+// @route    POST/api/v1/posts/user/:id
+// @acces    Private
+exports.usersPosts = asyncHandler( async (req, res, next) => {
+    
+    const posts = await Post.find({user: { $eq: Object(req.params.id) } } );
+
+    if (!posts) {
+      return next(new ErrorResponse("Can not fetch user's posts", 400))
+    }
+
+    res.status(200).json({message: 'Success', posts: posts})
+
+});
+
 // @desc     Upload post
 // @route    POST/api/v1/posts/upload
 // @acces    Private
