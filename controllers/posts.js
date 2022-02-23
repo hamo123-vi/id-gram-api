@@ -38,29 +38,49 @@ exports.explorePosts = asyncHandler( async (req, res, next) => {
 // @route    GET/api/v1/posts/following
 // @acces    Private
 exports.followingPosts = asyncHandler( async (req, res, next) => {
-    const posts = await Post.aggregate([  
+    const posts = await Post.aggregate([
         {
             
             $lookup: {
                 from: "users",
-                let: { user_id : "$user" },
+                let: { user_id: '$user', following: req.user.id },
                 pipeline: [
-                    {
-                        $unwind: '$followers'
-                    },
                     {
                         $match: {
                             $expr: {
-                                 $eq : ['$$user_id', '$followers.user']}
-                            
+                                $and: [
+                                    {$eq: ['$_id', '$$user_id']},
+                                    {'$followers' : { $elemMatch: {user: '$$following'}} }
+                                ]
+                                 
                             }
-                        
-                    
+                        }
+                    },
+                    {
+                        $project: {
+                            ids: '$$following',
+                            fullname: 1
+                        }
                     }
                 ],
                 as: "users"
-            } 
+            },
+
+        },
+        {
+            $match: {
+                $expr: {
+                $ne : ['$users', [] ]} 
+                }
+        },
+
+        {
+            $project: {
+                _id: 1,
+                users: 1
+            }
         }
+        
     ])
 
     if (!posts) {
