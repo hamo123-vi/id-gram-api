@@ -33,9 +33,8 @@ const UserSchema = new mongoose.Schema({
 
     followers: {
         type: [
-                {user: {
-                    type: mongoose.Schema.Types.ObjectId
-                }
+                {user: mongoose.Schema.Types.ObjectId
+                
             } ]
     },
 

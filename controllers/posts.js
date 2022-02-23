@@ -38,24 +38,29 @@ exports.explorePosts = asyncHandler( async (req, res, next) => {
 // @route    GET/api/v1/posts/following
 // @acces    Private
 exports.followingPosts = asyncHandler( async (req, res, next) => {
-    
-    const posts = await Post.aggregate([
-        { $lookup:
-            {
-            from: "users",
-            let: { followers: "$followers"},
-            pipeline: [
-                    { $match:
-                            {
-                                followers : {$elemMatch: { user: {$eq: Object(req.user.id) } } }
+    const posts = await Post.aggregate([  
+        {
+            
+            $lookup: {
+                from: "users",
+                let: { user_id : "$user" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $and : [ 
+                                { $eq : ['$$user_id', '$_id'] },
+                                { followers : { $elemMatch : { user: Object(req.user.id) }}}
+                            ]
                             }
                         }
                     
+                    }
                 ],
-                as: "posts"
-                }
+                as: "users"
+            } 
         }
-])
+    ])
 
     if (!posts) {
       return next(new ErrorResponse("Can not fetch all posts to explore", 400))
