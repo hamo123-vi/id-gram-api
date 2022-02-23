@@ -46,14 +46,15 @@ exports.followingPosts = asyncHandler( async (req, res, next) => {
                 let: { user_id : "$user" },
                 pipeline: [
                     {
+                        $unwind: '$followers'
+                    },
+                    {
                         $match: {
                             $expr: {
-                                $and : [ 
-                                { $eq : ['$$user_id', '$_id'] },
-                                { followers : { $elemMatch : { user: Object(req.user.id) }}}
-                            ]
+                                 $eq : ['$$user_id', '$followers.user']}
+                            
                             }
-                        }
+                        
                     
                     }
                 ],
