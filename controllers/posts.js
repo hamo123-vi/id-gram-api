@@ -3,6 +3,7 @@ const User = require('../models/User')
 const Post = require('../models/Post')
 const asyncHandler = require('../middleware/async')
 const ErrorResponse = require('../utils/errorResponse')
+const FollowSchema = require('../models/FollowSchema')
 
 // @desc     Get my posts
 // @route    POST/api/v1/posts/my
@@ -38,56 +39,16 @@ exports.explorePosts = asyncHandler( async (req, res, next) => {
 // @route    GET/api/v1/posts/following
 // @acces    Private
 exports.followingPosts = asyncHandler( async (req, res, next) => {
-    const posts = await Post.aggregate([
-        {
-            
-            $lookup: {
-                from: "users",
-                let: { user_id: '$user', following: req.user.id },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    {$eq: ['$_id', '$$user_id']},
-                                    {'$followers' : { $elemMatch: {user: '$$following'}} }
-                                ]
-                                 
-                            }
-                        }
-                    },
-                    {
-                        $project: {
-                            ids: '$$following',
-                            fullname: 1
-                        }
-                    }
-                ],
-                as: "users"
-            },
-
-        },
-        {
-            $match: {
-                $expr: {
-                $ne : ['$users', [] ]} 
-                }
-        },
-
-        {
-            $project: {
-                _id: 1,
-                users: 1
-            }
-        }
-        
-    ])
+    
+    const followings = await FollowSchema.find({'follower': {$eq: req.user.id}})
+    const followingIds = followings.map(f => f.following);
+    const posts = await Post.find({ user: { $in: followingIds } });
 
     if (!posts) {
-      return next(new ErrorResponse("Can not fetch all posts to explore", 400))
+      return next(new ErrorResponse("Can not fetch following posts", 400))
     }
 
-    res.status(200).json({message: 'Success', posts: posts})
+    res.status(200).json({id: Object(req.user.id), followings})
 
 });
 

@@ -1,4 +1,5 @@
 const asyncHandler = require('../middleware/async');
+const FollowSchema = require('../models/FollowSchema');
 const User = require('../models/User');
 const ErrorResponse = require('../utils/errorResponse');
 
@@ -29,7 +30,6 @@ exports.getUser = asyncHandler( async(req, res, next) => {
 exports.follow = asyncHandler( async(req, res, next) => {
 
     const user = await User.findById(req.params.id);
-    const follower = {user: req.user.id}
 
     if(!user) {
         return next(new ErrorResponse('User does not exist in database', 404));
@@ -39,16 +39,14 @@ exports.follow = asyncHandler( async(req, res, next) => {
         return next(new ErrorResponse('Forbidden', 403));
     }
     
-    const followerExists = await User.find({ $and : [{ followers : { $elemMatch: { user: {$eq: Object(req.user.id) } } } }, {_id: req.params.id}]});
-
-    if(followerExists.length>0) {
-        await user.updateOne({ $pull: { followers: follower} });
-        await user.save();
-        res.status(200).json({success: true, message: "Unfollowed"})
+    const followerExists = await FollowSchema.find({ $and : [{ 'follower': { $eq : Object(req.user.id) } }, {'following': {$eq : Object(req.params.id) }}]});
+    
+    if(followerExists!=0) {
+        await FollowSchema.findOneAndDelete({ $and : [{ $eq: ['$follower', Object(req.user.id)] }, {$eq: ['$following', Object(req.params.id)]}]})
+        res.status(200).json({id: req.user.id, success: true, message: "Unfollowed"})
     }else {
-        await user.updateOne({ $push: { followers: follower} });
-        await user.save();
-        res.status(200).json({success: true, message: "Following"})
+        await FollowSchema.create({follower: Object(req.user.id), following: Object(req.params.id)})
+        res.status(200).json({id: req.user.id, success: true, message: "Following"})
     }
 
 });
