@@ -48,7 +48,7 @@ exports.followingPosts = asyncHandler( async (req, res, next) => {
       return next(new ErrorResponse("Can not fetch following posts", 400))
     }
 
-    res.status(200).json({id: Object(req.user.id), followings})
+    res.status(200).json({id: Object(req.user.id), posts})
 
 });
 
