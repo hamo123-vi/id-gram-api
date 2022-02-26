@@ -60,30 +60,45 @@ exports.getMe = asyncHandler( async (req, res, next) => {
 //access     Private
 exports.updateDetails = asyncHandler(async(req, res, next) => {
 
-    const file = req.files.image;
+    let file = null;
 
-    if (!file) {
-      return next(new ErrorResponse("Please upload image", 400))
+    if(req.files !== null) {
+
+        file = req.files.image;
+
     }
 
-    file.mv(`${process.env.PROFILE_PICTURE_UPLOAD_PATH}/${file.name}`, async err => {
-        if(err) {
-            return next(
-                new ErrorResponse('Problem with image upload', 500)
-            )
-        } else {
-            const fieldsToUpdate = { 
+    let fieldsToUpdate = {}
+
+    if (!file) {
+
+        fieldsToUpdate = { 
             fullname: req.body.fullname,
             username: req.body.username,
-            email: req.body.email,
-            image: file.name
+            email: req.body.email
             }
 
+        } else {
+
+        file.mv(`${process.env.PROFILE_PICTURE_UPLOAD_PATH}/${file.name}`, async err => {
+            if(err) {
+                return next(
+                    new ErrorResponse('Problem with image upload', 500)
+                )
+            } else {
+                fieldsToUpdate = { 
+                fullname: req.body.fullname,
+                username: req.body.username,
+                email: req.body.email,
+                image: file.name
+                }
+            }})
+        }
         const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate); 
 
         res.status(200).json({success: true, data: fieldsToUpdate});
-        }
-    });
+        
+    
 });
 
 
