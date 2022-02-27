@@ -56,7 +56,7 @@ exports.getMe = asyncHandler( async (req, res, next) => {
 });
 
 //desc       Update User Details
-//route      PUT /api/v1/auth/updatedetails
+//route      POST /api/v1/auth/updatedetails
 //access     Private
 exports.updateDetails = asyncHandler(async(req, res, next) => {
 
@@ -94,7 +94,7 @@ exports.updateDetails = asyncHandler(async(req, res, next) => {
                 }
             }})
         }
-        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate); 
+        const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {new: true}); 
 
         res.status(200).json({success: true, data: fieldsToUpdate});
         

@@ -32,44 +32,18 @@ const advancedResults = (model, populate) => async (req, res, next) => {
             } else {
                 query = query.sort('-createdAt');
         }
-
-        //PAGINATION
-        const page = parseInt(req.query.page, 10) || 1
-        const limit = parseInt(req.query.limit, 10) || 2;
-        const startIndex = (page - 1) * limit;
-        const total = await model.countDocuments();
-        const endIndex = page * limit;
-        
-
-        query = query.skip(startIndex).limit(limit);
         
         if(populate) {
             query = query.populate(populate)
         }
         
-        //Assigning query execution results to bootcamps array
+        //Assigning query execution results to rray
+        
         const results = await query;
-
-        //Pagination result
-        const pagination = {}
-        if(endIndex < total) {
-            pagination.next = {
-            page : page + 1,
-            limit
-            }
-        }
-
-        if(startIndex > 0) {
-            pagination.previous = {
-            page : page - 1,
-            limit
-            }
-        }
 
         res.advancedResults = {
             success: true,
             count: results.length,
-            pagination,
             data: results
         }
 
