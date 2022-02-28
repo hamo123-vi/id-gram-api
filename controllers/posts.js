@@ -10,13 +10,13 @@ const FollowSchema = require('../models/FollowSchema')
 // @acces    Private
 exports.myPosts = asyncHandler( async (req, res, next) => {
     
-    const posts = await Post.find({user: Object(req.user.id)});
+    const posts = await Post.find({user: Object(req.user.id)}).sort({'image': 1});
 
     if (!posts) {
       return next(new ErrorResponse("Can not fetch single post", 400))
     }
 
-    res.status(200).json({message: 'Success', posts: posts})
+    res.status(200).json({message: 'Success', posts: posts, sort: req.params.sort})
 
 });
 

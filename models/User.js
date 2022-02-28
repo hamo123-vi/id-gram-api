@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
 
     image: {
         type: String,
-        default: 'Emoji.png'
+        default: 'instaUser.jpg'
     },
 
     createdAt: {
